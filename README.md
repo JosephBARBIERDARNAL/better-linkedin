@@ -1,6 +1,6 @@
-# LinkedIn Feed Blocker
+# Better LinkedIn
 
-A small Firefox extension that hides LinkedIn's home feed and selected distractions. LinkedIn navigation, notifications, posting, profiles, messaging, and other pages remain available.
+A small Firefox extension that makes LinkedIn better: hides home feed and selected distractions. LinkedIn navigation, notifications, posting, profiles, messaging, and other pages remain available.
 
 ## Install in Firefox
 
