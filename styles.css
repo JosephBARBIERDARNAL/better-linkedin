@@ -1,3 +1,3 @@
-.linkedin-feed-blocker-hidden {
+[data-linkedin-feed-blocker-hidden] {
   display: none !important;
 }

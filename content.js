@@ -1,59 +1,100 @@
-const hiddenClass = "linkedin-feed-blocker-hidden";
+const hiddenAttribute = "data-linkedin-feed-blocker-hidden";
 
-const feedPostSelectors = [
+const knownPostSelectors = [
   "main article",
   "main .occludable-update",
   "main .feed-shared-update-v2",
-  "main .feed-shared-article",
-  "main .feed-shared-sponsored-update",
-  "main .update-components-update-v2",
   "main [data-finite-scroll-hotkey-item]",
   "main [data-urn^=\"urn:li:activity:\"]",
   "main [data-id^=\"urn:li:activity:\"]"
 ];
 
-let isBlocking = false;
+let blocking = false;
+let scheduled = false;
 
 function isFeedPage() {
-  return /^\/feed(?:\/|$)/.test(window.location.pathname);
+  const path = window.location.pathname.replace(/\/+$/, "");
+  return path === "" || path === "/feed";
 }
 
-function hideFeedPosts() {
-  document
-    .querySelectorAll(feedPostSelectors.join(","))
-    .forEach((post) => post.classList.add(hiddenClass));
+function hasComposer(element) {
+  const label = `${element.getAttribute("aria-label") || ""} ${element.innerText || ""}`.toLowerCase();
+  return /start a post|create a post|share a post/.test(label);
 }
 
-function showFeedPosts() {
-  document
-    .querySelectorAll(`.${hiddenClass}`)
-    .forEach((post) => post.classList.remove(hiddenClass));
+function findFeedColumn() {
+  const minWidth = Math.min(380, window.innerWidth * 0.9);
+  const maxWidth = Math.max(760, Math.min(window.innerWidth * 0.8, 1400));
+  const chrome = document.querySelector("header, nav, [role='banner'], [role='navigation']");
+  let best = null;
+  let bestScore = 0;
+
+  for (const element of document.querySelectorAll("div, main, section")) {
+    const box = element.getBoundingClientRect();
+    if (box.width < minWidth || box.width > maxWidth || box.height < 400) continue;
+    if ((element.innerText || "").length < 500) continue;
+    if (chrome && element.contains(chrome)) continue;
+
+    const score = element.children.length;
+    if (score > bestScore || (score === bestScore && best && box.width < best.getBoundingClientRect().width)) {
+      best = element;
+      bestScore = score;
+    }
+  }
+
+  return best;
+}
+
+function hideFeed() {
+  for (const post of document.querySelectorAll(knownPostSelectors.join(","))) {
+    if (!hasComposer(post)) post.setAttribute(hiddenAttribute, "");
+  }
+
+  const feed = findFeedColumn();
+  if (!feed) return;
+
+  for (const child of feed.children) {
+    if (!hasComposer(child)) child.setAttribute(hiddenAttribute, "");
+  }
+}
+
+function showFeed() {
+  document.querySelectorAll(`[${hiddenAttribute}]`).forEach((element) => element.removeAttribute(hiddenAttribute));
 }
 
 function update() {
-  const shouldBlock = isFeedPage();
-
-  if (shouldBlock) {
-    hideFeedPosts();
-  } else if (isBlocking) {
-    showFeedPosts();
+  if (!isFeedPage()) {
+    if (blocking) showFeed();
+    blocking = false;
+    return;
   }
 
-  isBlocking = shouldBlock;
+  hideFeed();
+  blocking = true;
 }
 
-const observer = new MutationObserver(update);
-observer.observe(document.documentElement, { childList: true, subtree: true });
+function scheduleUpdate() {
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    update();
+  });
+}
+
+const observer = new MutationObserver(scheduleUpdate);
+observer.observe(document.documentElement || document, { childList: true, subtree: true });
 
 for (const method of ["pushState", "replaceState"]) {
   const original = history[method];
   history[method] = function (...args) {
     const result = original.apply(this, args);
-    window.dispatchEvent(new Event("linkedin-feed-blocker-navigation"));
+    scheduleUpdate();
     return result;
   };
 }
 
-window.addEventListener("popstate", update);
-window.addEventListener("linkedin-feed-blocker-navigation", update);
+window.addEventListener("popstate", scheduleUpdate);
+window.addEventListener("resize", scheduleUpdate);
+setInterval(update, 1200);
 update();

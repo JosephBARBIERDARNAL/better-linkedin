@@ -11,6 +11,7 @@
   "content_scripts": [
     {
       "matches": [
+        "*://www.linkedin.com/*",
         "*://linkedin.com/*",
         "*://*.linkedin.com/*"
       ],
