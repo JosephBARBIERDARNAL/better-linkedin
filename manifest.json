@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Feed Blocker",
+  "version": "1.0.0",
+  "description": "Hides LinkedIn's home feed while keeping the rest of LinkedIn available.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "linkedin-feed-blocker@example.com"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://linkedin.com/*",
+        "*://*.linkedin.com/*"
+      ],
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
