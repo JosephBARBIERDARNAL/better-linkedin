@@ -19,7 +19,7 @@ function isFeedPage() {
 
 function isProfilePage() {
   const path = window.location.pathname.replace(/\/+$/, "");
-  return path === "/in";
+  return /^\/in(?:\/|$)/.test(path);
 }
 
 function hasComposer(element) {
