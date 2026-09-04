@@ -5,7 +5,7 @@
   "description": "Hides LinkedIn's home feed while keeping the rest of LinkedIn available.",
   "browser_specific_settings": {
     "gecko": {
-      "id": "better-linkedin-7c2a9d41@example.com",
+      "id": "linkedin-feed-blocker-7c2a9d41@example.com",
       "data_collection_permissions": {
         "required": ["none"]
       }
