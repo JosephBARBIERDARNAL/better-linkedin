@@ -6,7 +6,7 @@ A small Firefox extension that hides LinkedIn's home feed. LinkedIn navigation, 
 
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click **Load Temporary Add-on…**.
-3. Select `linkedin-feed-blocker.zip` from this folder, or select this folder's `manifest.json`.
+3. Select `better-linkedin.zip` from this folder, or select this folder's `manifest.json`.
 4. Open or refresh LinkedIn.
 
 After changing the extension files, click **Reload** for the add-on in `about:debugging`, then refresh the LinkedIn tab.
